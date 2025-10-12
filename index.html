@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Application</title>
+    <style>
+        /* Add some basic styling */
+        body { font-family: sans-serif; padding: 15px; background-color: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); }
+        form { display: flex; flex-direction: column; gap: 10px; }
+        input, select, textarea { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { padding: 10px; border: none; border-radius: 5px; background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h3>New Leave Application</h3>
+    <form id="leave-form">
+        <label for="leave-type">Leave Type:</label>
+        <select id="leave-type" name="leaveType" required>
+            <option value="Annual">Annual Leave</option>
+            <option value="Sick">Sick Leave</option>
+            <option value="Unpaid">Unpaid Leave</option>
+        </select>
+
+        <label for="start-date">Start Date:</label>
+        <input type="date" id="start-date" name="startDate" required>
+
+        <label for="end-date">End Date:</label>
+        <input type="date" id="end-date" name="endDate" required>
+        
+        <label for="reason">Reason:</label>
+        <textarea id="reason" name="reason" rows="3" required></textarea>
+
+        <button type="submit">Submit Request</button>
+    </form>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
