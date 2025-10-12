@@ -213,6 +213,7 @@
                 this.tg.requestContact((isShared, contact) => {
                     if (isShared) {
                         this.phoneShared = true;
+                        console.log(contact);
                         this.verifyUserByPhone(contact.phone_number);
                     } else {
                         this.authMessage = "You cancelled the phone sharing request.";
