@@ -11,7 +11,7 @@ form.addEventListener('submit', function(event) {
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwIKsk4FFugMd-lGemHw7mP5S_7Fkg3ObIX3DwugIgyODLp4s7qBkvh82KrTKI9WaPe/exec';
 
     const formData = {
-        leaveType: document.getElementById('leave-type').value,
+        // leaveType: document.getElementById('leave-type').value,
         startDate: document.getElementById('start-date').value,
         endDate: document.getElementById('end-date').value,
         reason: document.getElementById('reason').value,
