@@ -145,7 +145,7 @@
 
     <div id="app">
         <h1>Leave Request</h1>
-         <p class="welcome-message">Hello, {{ user.firstName }}! Please fill out the form below.</p>
+         <p class="welcome-message">Hello, {{ user.firstName + " " + user.lastName }}! Please fill out the form below.</p>
 
         <form @submit.prevent="submitLeaveRequest">
             <div class="form-group">
@@ -180,7 +180,8 @@
                     // This can be fetched from the Telegram Mini App API later
                      user: {
                         id: null,
-                        firstName: 'Guest' // Default value
+                        firstName: 'Guest', // Default value
+                        lastName: '' // Default value
                     },
                     userName: 'Employee', 
                     leave: {
@@ -250,6 +251,7 @@
                         const user = tg.initDataUnsafe.user;
                         this.user.id = user.id;
                         this.user.firstName = user.first_name;
+                        this.user.lastName = user.last_name;
                     }
                 }
             },
