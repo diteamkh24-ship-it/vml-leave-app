@@ -142,121 +142,115 @@
     </style>
 </head>
 <body>
-
     <div id="app">
-        <h1>Leave Request</h1>
-         <p class="welcome-message">Hello, {{ user.firstName + " " + user.lastName }}! Please fill out the form below.</p>
+        <div v-if="!phoneShared">
+            <h1>Welcome</h1>
+            <p class="welcome-message">To access the leave request form, please verify your identity by sharing your phone number.</p>
+            <button @click="requestPhoneNumber" class="submit-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                  <path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
+                </svg>
+                Share Phone & Verify
+            </button>
+        </div>
 
-        <form @submit.prevent="submitLeaveRequest">
-            <div class="form-group">
-                <label for="startDate">Start Date</label>
-                <input type="date" id="startDate" class="form-control" v-model="leave.startDate" required>
-            </div>
+        <div v-if="isLoading">
+            <h1>Verifying...</h1>
+            <p class="welcome-message">{{ authMessage }}</p>
+        </div>
 
-            <div class="form-group">
-                <label for="endDate">End Date</label>
-                <input type="date" id="endDate" class="form-control" v-model="leave.endDate" required>
-            </div>
+        <div v-if="!isLoading && phoneShared && !isAuthorized">
+            <h1>Access Denied</h1>
+            <p class="welcome-message">{{ authMessage }}</p>
+        </div>
 
-            <div class="form-group">
-                <label for="reason">Reason for Leave</label>
-                <textarea id="reason" class="form-control" v-model="leave.reason" placeholder="Please provide a brief reason..." required></textarea>
-            </div>
-
-            <button type="submit" class="submit-btn">Submit Request</button>
-        </form>
-        
-        <div v-if="message" :class="['message', messageType]">
-            {{ message }}
+        <div v-if="!isLoading && isAuthorized">
+            <h1>Leave Request</h1>
+            <p class="welcome-message">Hello, {{ user.fullName }}! Please fill out the form below.</p>
+            <form @submit.prevent="submitLeaveRequest">
+                <div class="form-group"> <label for="startDate">Start Date</label> <input type="date" id="startDate" class="form-control" v-model="leave.startDate" required> </div>
+                <div class="form-group"> <label for="endDate">End Date</label> <input type="date" id="endDate" class="form-control" v-model="leave.endDate" required> </div>
+                <div class="form-group"> <label for="reason">Reason for Leave</label> <textarea id="reason" class="form-control" v-model="leave.reason" placeholder="Please provide a brief reason..." required></textarea> </div>
+                <button type="submit" class="submit-btn">Submit Request</button>
+            </form>
         </div>
     </div>
-
-    <script>
-        const { createApp } = Vue;
-
-        createApp({
-            data() {
-                return {
-                    // This can be fetched from the Telegram Mini App API later
-                     user: {
-                        id: null,
-                        firstName: 'Guest', // Default value
-                        lastName: '' // Default value
-                    },
-                    userName: 'Employee', 
-                    leave: {
-                        startDate: '',
-                        endDate: '',
-                        reason: ''
-                    },
-                    message: '', // To show success or error messages
-                    messageType: '' // 'success' or 'error'
-                }
-            },
-            methods: {
-                submitLeaveRequest() {
-                    // Basic validation
-                    if (!this.leave.startDate || !this.leave.endDate || !this.leave.reason) {
-                        this.showMessage('Please fill in all fields.', 'error');
-                        return;
-                    }
-
-                    console.log('Form Submitted!');
-                    console.log('Start Date:', this.leave.startDate);
-                    console.log('End Date:', this.leave.endDate);
-                    console.log('Reason:', this.leave.reason);
-
-                    // Placeholder for Axios POST request to Google Apps Script
-                    // We will implement this in the next steps.
-                    this.showMessage('Your request has been submitted successfully!', 'success');
-                    
-                    /*
-                    // Example of how Axios will be used:
-                    const webAppUrl = 'YOUR_GOOGLE_APP_SCRIPT_WEB_APP_URL';
-                    axios.post(webAppUrl, this.leave)
-                        .then(response => {
-                            console.log(response.data);
-                            this.showMessage('Request sent successfully!', 'success');
-                            // Optionally clear the form
-                            this.leave.startDate = '';
-                            this.leave.endDate = '';
-                            this.leave.reason = '';
-                        })
-                        .catch(error => {
-                            console.error('Error submitting leave request:', error);
-                            this.showMessage('Failed to send request. Please try again.', 'error');
-                        });
-                    */
-                },
-                showMessage(text, type) {
-                    this.message = text;
-                    this.messageType = type;
-                    // Hide the message after 5 seconds
-                    setTimeout(() => {
-                        this.message = '';
-                        this.messageType = '';
-                    }, 5000);
-                }
-            }
-            ,created() {
-                // Check if the Telegram Web App object is available
-                if (window.Telegram && window.Telegram.WebApp) {
-                    const tg = window.Telegram.WebApp;
-                    
-                    // Inform the Telegram client that the app is ready to be displayed.
-                    tg.ready();
-
-                    // Fetch user data from Telegram
-                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                        const user = tg.initDataUnsafe.user;
-                        this.user.id = user.id;
-                        this.user.firstName = user.first_name;
-                        this.user.lastName = user.last_name;
-                    }
-                }
-            },
-        }).mount('#app');
-    </script>
-
 </body>
+
+ <script>
+    const { createApp } = Vue;
+    
+    // IMPORTANT: Paste your Google Apps Script Web App URL here
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbwIKsk4FFugMd-lGemHw7mP5S_7Fkg3ObIX3DwugIgyODLp4s7qBkvh82KrTKI9WaPe/exec';
+
+    createApp({
+        data() {
+            return {
+                tg: null,
+                isLoading: false,
+                phoneShared: false,  // Tracks if user has clicked the share button
+                isAuthorized: false,
+                authMessage: '',
+                user: {
+                    fullName: ''
+                },
+                leave: {
+                    startDate: '',
+                    endDate: '',
+                    reason: ''
+                },
+            }
+        },
+        created() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                this.tg = window.Telegram.WebApp;
+                this.tg.ready();
+            }
+        },
+        methods: {
+            requestPhoneNumber() {
+                // This will open the native Telegram UI to share the contact
+                this.tg.requestContact((isShared, contact) => {
+                    if (isShared) {
+                        this.phoneShared = true;
+                        this.verifyUserByPhone(contact.phone_number);
+                    } else {
+                        this.authMessage = "You cancelled the phone sharing request.";
+                    }
+                });
+            },
+            async verifyUserByPhone(phoneNumber) {
+                this.isLoading = true;
+                this.authMessage = 'Checking your phone number against the staff list...';
+                try {
+                    const response = await axios.post(webAppUrl, {
+                        action: 'verifyUserByPhone',
+                        phoneNumber: phoneNumber
+                    });
+
+                    if (response.data.authorized) {
+                        this.isAuthorized = true;
+
+                        // Save user details from the successful response
+                        this.user.fullName = response.data.user.fullName;
+                    } else {
+                        this.isAuthorized = false;
+                        this.authMessage = response.data.message || 'Verification failed.';
+                    }
+                } catch (error) {
+                    this.isAuthorized = false;
+                    this.authMessage = 'Error connecting to the server. Please try again.';
+                    console.error('Verification failed:', error);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+            submitLeaveRequest() {
+                // Logic for submitting the form will go here
+                console.log('Submitting leave request for:', this.user.fullName);
+            }
+        }
+    }).mount('#app');
+</script>
 </html>
+
