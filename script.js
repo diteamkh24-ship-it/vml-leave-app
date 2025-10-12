@@ -33,7 +33,8 @@ form.addEventListener('submit', function(event) {
                     data: formData
                 }),
                 headers: {
-                    'Content-Type': 'application/json'
+                    // 'Content-Type': 'application/json'
+                      'Content-Type': 'text/plain;charset=utf-8'
                 }
             })
             .then(response => response.json())
