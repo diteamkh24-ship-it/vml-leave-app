@@ -226,7 +226,15 @@
                     const response = await axios.post(webAppUrl, {
                         action: 'verifyUserByPhone',
                         phoneNumber: phoneNumber
-                    });
+                    },
+                    {
+                        // This is the config object where you set headers
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        }
+                    }
+                    
+                    );
 
                     if (response.data.authorized) {
                         this.isAuthorized = true;
