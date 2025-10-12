@@ -214,19 +214,23 @@
                     if (isShared) {
                         this.phoneShared = true;
                         console.log("contact: ",contact);
-                        this.verifyUserByPhone(contact.responseUnsafe.contact.phone_number);
+                        this.verifyUserByPhone(
+                            contact.responseUnsafe.contact.phone_number,
+                            contact.responseUnsafe.contact.user_id
+                        );
                     } else {
                         this.authMessage = "You cancelled the phone sharing request.";
                     }
                 });
             },
-            async verifyUserByPhone(phoneNumber) {
+            async verifyUserByPhone(phoneNumber, userID) {
                 this.isLoading = true;
                 this.authMessage = 'Checking your phone number against the staff list...';
                 try {
                     const response = await axios.post(webAppUrl, {
                         action: 'verifyUserByPhone',
-                        phoneNumber: phoneNumber
+                        phoneNumber: phoneNumber,
+                        user_id: userID,
                     },
                     {
                         // This is the config object where you set headers
