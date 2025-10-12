@@ -3,7 +3,7 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 
 const form = document.getElementById('leave-form');
-
+console.log(tg)
 form.addEventListener('submit', function(event) {
     event.preventDefault();
 
