@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -144,7 +145,7 @@
 
     <div id="app">
         <h1>Leave Request</h1>
-        <p class="welcome-message">Hello, {{ userName }}! Please fill out the form below.</p>
+         <p class="welcome-message">Hello, {{ user.firstName }}! Please fill out the form below.</p>
 
         <form @submit.prevent="submitLeaveRequest">
             <div class="form-group">
@@ -177,6 +178,10 @@
             data() {
                 return {
                     // This can be fetched from the Telegram Mini App API later
+                     user: {
+                        id: null,
+                        firstName: 'Guest' // Default value
+                    },
                     userName: 'Employee', 
                     leave: {
                         startDate: '',
@@ -232,6 +237,22 @@
                     }, 5000);
                 }
             }
+            ,created() {
+                // Check if the Telegram Web App object is available
+                if (window.Telegram && window.Telegram.WebApp) {
+                    const tg = window.Telegram.WebApp;
+                    
+                    // Inform the Telegram client that the app is ready to be displayed.
+                    tg.ready();
+
+                    // Fetch user data from Telegram
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        const user = tg.initDataUnsafe.user;
+                        this.user.id = user.id;
+                        this.user.firstName = user.first_name;
+                    }
+                }
+            },
         }).mount('#app');
     </script>
 
