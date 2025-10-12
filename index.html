@@ -3,34 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Application</title>
+    <title>Leave Request Form</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <style>
-        /* Add some basic styling */
-        body { font-family: sans-serif; padding: 15px; background-color: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); }
-        form { display: flex; flex-direction: column; gap: 10px; }
-        input, select, textarea { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-        button { padding: 10px; border: none; border-radius: 5px; background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); cursor: pointer; }
+        /* General Styling */
+        :root {
+            --primary-color: #007BFF;
+            --primary-hover: #0056b3;
+            --background-color: #f4f7f6;
+            --form-background: #ffffff;
+            --text-color: #333;
+            --label-color: #555;
+            --border-color: #ddd;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Vue App Container */
+        #app {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--form-background);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        /* Header */
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .welcome-message {
+            font-size: 16px;
+            color: var(--label-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--label-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box; /* Important for padding */
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Button Styling */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* Message Styling (for success/error feedback) */
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background-color: #e9f7ef;
+            color: var(--success-color);
+        }
+
+        .message.error {
+            background-color: #fdecea;
+            color: var(--error-color);
+        }
+
     </style>
 </head>
 <body>
-    <h3>សូមស្វាគមន៍, <span>Pisey</span></h3>
-    <hr/>
-    <h3>ពាក្យស្នើរសុំច្បាប់</h3>
-    <form id="leave-form">
-        <label for="start-date">ឈប់ចាប់ពី:</label>
-        <input type="date" id="start-date" name="startDate" required>
 
-        <label for="end-date">រហូតដល់:</label>
-        <input type="date" id="end-date" name="endDate" required>
+    <div id="app">
+        <h1>Leave Request</h1>
+        <p class="welcome-message">Hello, {{ userName }}! Please fill out the form below.</p>
+
+        <form @submit.prevent="submitLeaveRequest">
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" class="form-control" v-model="leave.startDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate" class="form-control" v-model="leave.endDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="reason">Reason for Leave</label>
+                <textarea id="reason" class="form-control" v-model="leave.reason" placeholder="Please provide a brief reason..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Request</button>
+        </form>
         
-        <label for="reason">ហេតុផល:</label>
-        <textarea id="reason" name="reason" rows="3" required></textarea>
+        <div v-if="message" :class="['message', messageType]">
+            {{ message }}
+        </div>
+    </div>
 
-        <button type="submit">បញ្ចូន</button>
-    </form>
-    
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="script.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    // This can be fetched from the Telegram Mini App API later
+                    userName: 'Employee', 
+                    leave: {
+                        startDate: '',
+                        endDate: '',
+                        reason: ''
+                    },
+                    message: '', // To show success or error messages
+                    messageType: '' // 'success' or 'error'
+                }
+            },
+            methods: {
+                submitLeaveRequest() {
+                    // Basic validation
+                    if (!this.leave.startDate || !this.leave.endDate || !this.leave.reason) {
+                        this.showMessage('Please fill in all fields.', 'error');
+                        return;
+                    }
+
+                    console.log('Form Submitted!');
+                    console.log('Start Date:', this.leave.startDate);
+                    console.log('End Date:', this.leave.endDate);
+                    console.log('Reason:', this.leave.reason);
+
+                    // Placeholder for Axios POST request to Google Apps Script
+                    // We will implement this in the next steps.
+                    this.showMessage('Your request has been submitted successfully!', 'success');
+                    
+                    /*
+                    // Example of how Axios will be used:
+                    const webAppUrl = 'YOUR_GOOGLE_APP_SCRIPT_WEB_APP_URL';
+                    axios.post(webAppUrl, this.leave)
+                        .then(response => {
+                            console.log(response.data);
+                            this.showMessage('Request sent successfully!', 'success');
+                            // Optionally clear the form
+                            this.leave.startDate = '';
+                            this.leave.endDate = '';
+                            this.leave.reason = '';
+                        })
+                        .catch(error => {
+                            console.error('Error submitting leave request:', error);
+                            this.showMessage('Failed to send request. Please try again.', 'error');
+                        });
+                    */
+                },
+                showMessage(text, type) {
+                    this.message = text;
+                    this.messageType = type;
+                    // Hide the message after 5 seconds
+                    setTimeout(() => {
+                        this.message = '';
+                        this.messageType = '';
+                    }, 5000);
+                }
+            }
+        }).mount('#app');
+    </script>
+
 </body>
 </html>
