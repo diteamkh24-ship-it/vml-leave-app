@@ -8,7 +8,7 @@ form.addEventListener('submit', function(event) {
     event.preventDefault();
 
     // The URL of your Google Apps Script Web App (we will get this in the next step)
-    const GAS_WEB_APP_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwIKsk4FFugMd-lGemHw7mP5S_7Fkg3ObIX3DwugIgyODLp4s7qBkvh82KrTKI9WaPe/exec';
 
     const formData = {
         leaveType: document.getElementById('leave-type').value,
