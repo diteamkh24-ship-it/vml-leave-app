@@ -143,6 +143,7 @@
 </head>
 <body>
     <div id="app">
+
         <div v-if="!phoneShared">
             <h1>Welcome</h1>
             <p class="welcome-message">To access the leave request form, please verify your identity by sharing your phone number.</p>
@@ -174,6 +175,7 @@
                 <button type="submit" class="submit-btn">Submit Request</button>
             </form>
         </div>
+        <div>Version 1</div>
     </div>
 </body>
 
@@ -206,7 +208,7 @@
             if (window.Telegram && window.Telegram.WebApp) {
                 this.tg = window.Telegram.WebApp;
                 this.tg.ready();
-                console.log(tg);
+                console.log(this.tg);
             }
         },
         methods: {
