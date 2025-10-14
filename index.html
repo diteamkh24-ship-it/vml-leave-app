@@ -229,7 +229,7 @@
                 try {
                     const response = await axios.post(webAppUrl, {
                         action: 'verifyUserByChatID',
-                        user_id: userID,
+                        user_id: this.user.chatId,
                     },
                     {
                         headers: {
