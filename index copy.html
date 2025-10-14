@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Request Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #007BFF; --primary-hover: #0056b3; --background-color: #f4f7f6;
+            --form-background: #ffffff; --text-color: #333; --label-color: #555;
+            --border-color: #ddd; --success-color: #28a745; --error-color: #dc3545;
+        }
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--background-color); color: var(--text-color);
+            margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+        #app {
+            width: 100%; max-width: 500px; background-color: var(--form-background);
+            padding: 30px 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        h1 { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--label-color); }
+        .form-control {
+            width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px;
+            font-size: 16px; box-sizing: border-box; transition: border-color 0.3s ease;
+        }
+        .form-control:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        .submit-btn {
+            width: 100%; padding: 14px; border: none; border-radius: 8px; background-color: var(--primary-color);
+            color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease;
+        }
+        .submit-btn:disabled { background-color: #a0a0a0; cursor: not-allowed; }
+        .message {
+            text-align: center; margin-top: 20px; padding: 10px; border-radius: 8px; font-weight: 500;
+        }
+        .message.success { background-color: #e9f7ef; color: var(--success-color); }
+        .message.error { background-color: #fdecea; color: var(--error-color); }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Leave Request</h1>
+        <form @submit.prevent="submitLeaveRequest" v-if="!submissionMessage">
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" class="form-control" v-model="leave.startDate" required>
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate" class="form-control" v-model="leave.endDate" required>
+            </div>
+            <div class="form-group">
+                <label for="reason">Reason for Leave</label>
+                <textarea id="reason" class="form-control" v-model="leave.reason" placeholder="Please provide a brief reason..." required></textarea>
+            </div>
+            <button type="submit" class="submit-btn" :disabled="isLoading">
+                {{ isLoading ? 'Submitting...' : 'Submit Request' }}
+            </button>
+        </form>
+        <div v-if="submissionMessage" :class="['message', submissionStatus]">
+            {{ submissionMessage }}
+        </div>
+    </div>
+
+<script>
+    const { createApp } = Vue;
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbzHTe-ZVCir109aEuyRs03Yc66vEdbux_fnC2NPmDeLBBPFswuGUpRR3UOP97qezDhr/exec'; // <-- PASTE YOUR URL HERE
+
+    createApp({
+        data() {
+            return {
+                tg: null,
+                initData: null, // Will hold the raw initData string for validation
+                isLoading: false,
+                leave: { startDate: '', endDate: '', reason: '' },
+                submissionStatus: '',
+                submissionMessage: ''
+            }
+        },
+        created() {
+            // Initialize Telegram Web App and get user data right away
+            if (window.Telegram && window.Telegram.WebApp) {
+                this.tg = window.Telegram.WebApp;
+                this.tg.ready();
+                this.initData = this.tg.initData; // Store the raw data for backend validation
+            }
+        },
+        methods: {
+            async submitLeaveRequest() {
+                if (!this.leave.startDate || !this.leave.endDate || !this.leave.reason) {
+                    this.submissionMessage = 'Please fill out all fields.';
+                    this.submissionStatus = 'error';
+                    return;
+                }
+                this.isLoading = true;
+                this.submissionMessage = '';
+
+                try {
+                    console.log(this.initData);
+                    const payload = {
+                        action: 'submitAndVerifyLeave',
+                        leaveData: this.leave,
+                        // initData: this.initData.un // Send the raw initData for secure validation
+                    };
+
+                    const response = await axios.post(webAppUrl, payload,
+                        {
+                            // This is the config object where you set headers
+                            headers: {
+                                'Content-Type': 'text/plain;charset=utf-8'
+                            }
+                        }
+                    );
+                        
+                    console.log(response)
+
+                    if (response.data.status === 'success') {
+                        this.submissionMessage = 'Request submitted successfully!';
+                        this.submissionStatus = 'success';
+                        // Close the Mini App after 2 seconds
+                        setTimeout(() => { this.tg.close(); }, 2000);
+                    } else {
+                        // Handle specific errors from the backend, like "Unauthorized"
+                        // throw new Error(response.data.message || 'An unknown error occurred.');
+                    }
+                } catch (error) {
+                    this.submissionMessage = error.message;
+                    this.submissionStatus = 'error';
+                    // console.error('Submission failed:', error);
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
