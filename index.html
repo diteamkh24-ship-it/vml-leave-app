@@ -170,7 +170,7 @@
                 <button type="submit" class="submit-btn">Submit Request</button>
             </form>
         </div>
-        <div>Version 1.0.5</div>
+        <div>Version 1.0.6</div>
     </div>
 </body>
 
@@ -244,12 +244,10 @@
                         console.log(response)
                         // Save user details from the successful response
                         this.user.fullName = response.data.user.fullName;
-                          this.isLoading = false;
                     } else {
                         this.isAuthorized = false;
                         this.authMessage = response.data.message || 'Verification failed.';
-                        this.phoneShared = false;
-                            this.isLoading = false;
+                        this.phoneShared = true;
                     }
                 } catch (error) {
                     this.isAuthorized = false;
