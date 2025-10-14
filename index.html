@@ -72,7 +72,7 @@
 
 <script>
     const { createApp } = Vue;
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbwIKsk4FFugMd-lGemHw7mP5S_7Fkg3ObIX3DwugIgyODLp4s7qBkvh82KrTKI9WaPe/exec'; // <-- PASTE YOUR URL HERE
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbx6rNSJEn7ZzDBsNN8BCoPgNmtWa1JyJIdQNSrlt9XB4_PgrCNGzZTAbhcEARAFMS2f/exec'; // <-- PASTE YOUR URL HERE
 
     createApp({
         data() {
@@ -118,7 +118,8 @@
                             }
                         }
                     );
-                 
+                        
+                    console.log(response)
 
                     if (response.data.status === 'success') {
                         this.submissionMessage = 'Request submitted successfully!';
@@ -127,12 +128,12 @@
                         setTimeout(() => { this.tg.close(); }, 2000);
                     } else {
                         // Handle specific errors from the backend, like "Unauthorized"
-                        throw new Error(response.data.message || 'An unknown error occurred.');
+                        // throw new Error(response.data.message || 'An unknown error occurred.');
                     }
                 } catch (error) {
                     this.submissionMessage = error.message;
                     this.submissionStatus = 'error';
-                    console.error('Submission failed:', error);
+                    // console.error('Submission failed:', error);
                 } finally {
                     this.isLoading = false;
                 }
