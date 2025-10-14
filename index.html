@@ -107,7 +107,7 @@
                     const payload = {
                         action: 'submitAndVerifyLeave',
                         leaveData: this.leave,
-                        initData: this.initData // Send the raw initData for secure validation
+                        // initData: this.initData.un // Send the raw initData for secure validation
                     };
 
                     const response = await axios.post(webAppUrl, payload,
