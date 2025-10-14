@@ -110,7 +110,11 @@
                         initData: this.initData // Send the raw initData for secure validation
                     };
 
-                    const response = await axios.post(webAppUrl, payload);
+                    const response = await axios.post(webAppUrl, payload,{
+                         headers: {
+                                'Content-Type': 'text/plain;charset=utf-8'
+                            }
+                    });
 
                     if (response.data.status === 'success') {
                         this.submissionMessage = 'Request submitted successfully!';
