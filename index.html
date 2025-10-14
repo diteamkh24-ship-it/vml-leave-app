@@ -110,14 +110,13 @@
                         initData: this.initData // Send the raw initData for secure validation
                     };
 
-                    const response = await axios.post(webAppUrl, JSON.stringify(payload),
-                    {
-                        // This is the config object where you set headers
-                        headers: {
-                            'Content-Type': 'text/plain;charset=utf-8'
-                        }
-                    }
-                    
+                    const response = await axios.post(webAppUrl, payload,
+                    // {
+                    //     // This is the config object where you set headers
+                    //     headers: {
+                    //         'Content-Type': 'text/plain;charset=utf-8'
+                    //     }
+                    // }
                     );
                  
 
