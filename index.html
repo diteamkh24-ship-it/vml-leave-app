@@ -170,7 +170,7 @@
                 <button type="submit" class="submit-btn">Submit Request</button>
             </form>
         </div>
-        <div>Version 1.0.4</div>
+        <div>Version 1.0.5</div>
     </div>
 </body>
 
@@ -241,7 +241,7 @@
 
                     if (response.data.authorized) {
                         this.isAuthorized = true;
-
+                        console.log(response)
                         // Save user details from the successful response
                         this.user.fullName = response.data.user.fullName;
                           this.isLoading = false;
@@ -278,7 +278,7 @@
 
                     if (response.data.authorized) {
                         this.isAuthorized = true;
-                        console.log(response)
+                       
                         // Save user details from the successful response
                         this.user.fullName = response.data.user.fullName;
                     } else {
