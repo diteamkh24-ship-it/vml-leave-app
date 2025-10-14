@@ -192,7 +192,8 @@
                 isAuthorized: false,
                 authMessage: '',
                 user: {
-                    fullName: ''
+                    fullName: '',
+                    chatId:''
                 },
                 leave: {
                     startDate: '',
@@ -205,6 +206,7 @@
             if (window.Telegram && window.Telegram.WebApp) {
                 this.tg = window.Telegram.WebApp;
                 this.tg.ready();
+                console.log(tg);
             }
         },
         methods: {
@@ -222,6 +224,9 @@
                         this.authMessage = "You cancelled the phone sharing request.";
                     }
                 });
+            },
+            async verifyUserByID(){
+
             },
             async verifyUserByPhone(phoneNumber, userID) {
                 this.isLoading = true;
