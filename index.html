@@ -192,13 +192,18 @@
                 isAuthorized: false,
                 authMessage: '',
                 user: {
-                    fullName: ''
+                    fullName: '',
+                    phone: '',
+                    role: '',
+                    telegramId: ''
                 },
                 leave: {
                     startDate: '',
                     endDate: '',
                     reason: ''
                 },
+                submissionStatus: '',
+                submissionMessage: ''
             }
         },
         created() {
@@ -225,7 +230,7 @@
             },
             async verifyUserByPhone(phoneNumber, userID) {
                 this.isLoading = true;
-                this.authMessage = 'Checking your phone number against the staff list...';
+                this.authMessage = 'Checking your phone number...';
                 try {
                     const response = await axios.post(webAppUrl, {
                         action: 'verifyUserByPhone',
@@ -245,7 +250,7 @@
                         this.isAuthorized = true;
 
                         // Save user details from the successful response
-                        this.user.fullName = response.data.user.fullName;
+                       this.user = response.data.user;
                     } else {
                         this.isAuthorized = false;
                         this.authMessage = response.data.message || 'Verification failed.';
@@ -258,9 +263,55 @@
                     this.isLoading = false;
                 }
             },
-            submitLeaveRequest() {
+            async submitLeaveRequest() {
                 // Logic for submitting the form will go here
                 console.log('Submitting leave request for:', this.user.fullName);
+                 if (!this.leave.startDate || !this.leave.endDate || !this.leave.reason) {
+                    this.submissionMessage = 'Please fill out all fields.';
+                    this.submissionStatus = 'error';
+                    return;
+                }
+
+                this.isLoading = true;
+                this.submissionMessage = 'Submitting your request...';
+                this.submissionStatus = '';
+
+                try {
+                    // 2. Prepare the payload to send to the backend
+                    const payload = {
+                        action: 'submitLeave',
+                        // The full user object is now sent
+                        user: this.user,
+                        leave: this.leave
+                    };
+
+                    // 3. Send the data using axios
+                    const response = await axios.post(webAppUrl, payload);
+
+                    if (response.data.status === 'success') {
+                        this.submissionMessage = 'Request submitted successfully!';
+                        this.submissionStatus = 'success';
+                        
+                        // 4. Close the Mini App after 2 seconds for a great UX
+                        setTimeout(() => {
+                            this.tg.close();
+                        }, 2000);
+
+                    } else {
+                        throw new Error(response.data.message || 'Submission failed.');
+                    }
+
+                } catch (error) {
+                    this.submissionMessage = 'An error occurred. Please try again.';
+                    this.submissionStatus = 'error';
+                    console.error('Submission failed:', error);
+                } finally {
+                    // We keep isLoading true on success because the app will close.
+                    // We only set it to false on error so the user can try again.
+                    if (this.submissionStatus === 'error') {
+                        this.isLoading = false;
+                    }
+                }
             }
         }
     }).mount('#app');
