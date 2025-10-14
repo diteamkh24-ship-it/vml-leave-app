@@ -239,7 +239,7 @@
             },
             async verifyUserByID(){
                 this.isLoading = true;
-                this.authMessage = 'verifying your account...';
+                this.authMessage = 'កំពុងបញ្ចាក់គណនី...';
                 try {
                     const response = await axios.post(webAppUrl, {
                         action: 'verifyUserByChatID',
