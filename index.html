@@ -144,17 +144,6 @@
 <body>
     <div id="app">
 
-        <div v-if="!phoneShared">
-            <h1>Welcome</h1>
-            <p class="welcome-message">To access the leave request form, please verify your identity by sharing your phone number.</p>
-            <button @click="requestPhoneNumber" class="submit-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
-                  <path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
-                </svg>
-                Share Phone & Verify
-            </button>
-        </div>
-
         <div v-if="isLoading">
             <h1>Verifying...</h1>
             <p class="welcome-message">{{ authMessage }}</p>
@@ -163,6 +152,12 @@
         <div v-if="!isLoading && phoneShared && !isAuthorized">
             <h1>Access Denied</h1>
             <p class="welcome-message">{{ authMessage }}</p>
+             <button @click="requestPhoneNumber" class="submit-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                  <path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
+                </svg>
+                Share Phone & Verify Again
+            </button>
         </div>
 
         <div v-if="!isLoading && isAuthorized">
@@ -175,7 +170,7 @@
                 <button type="submit" class="submit-btn">Submit Request</button>
             </form>
         </div>
-        <div>Version 1</div>
+        <div>Version 1.0.1</div>
     </div>
 </body>
 
@@ -208,7 +203,8 @@
             if (window.Telegram && window.Telegram.WebApp) {
                 this.tg = window.Telegram.WebApp;
                 this.tg.ready();
-                console.log(this.tg);
+                this.user.chatId = this.tg.initDataUnsafe.user.id;
+                this.verifyUserByID();
             }
         },
         methods: {
@@ -228,7 +224,37 @@
                 });
             },
             async verifyUserByID(){
+                this.isLoading = true;
+                this.authMessage = 'Verifying...';
+                try {
+                    const response = await axios.post(webAppUrl, {
+                        action: 'verifyUserByChatID',
+                        user_id: userID,
+                    },
+                    {
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        }
+                    }
+                    
+                    );
 
+                    if (response.data.authorized) {
+                        this.isAuthorized = true;
+
+                        // Save user details from the successful response
+                        this.user.fullName = response.data.user.fullName;
+                    } else {
+                        this.isAuthorized = false;
+                        this.authMessage = response.data.message || 'Verification failed.';
+                    }
+                } catch (error) {
+                    this.isAuthorized = false;
+                    this.authMessage = 'Error connecting to the server. Please try again.';
+                    console.error('Verification failed:', error);
+                } finally {
+                    this.isLoading = false;
+                }
             },
             async verifyUserByPhone(phoneNumber, userID) {
                 this.isLoading = true;
@@ -240,7 +266,6 @@
                         user_id: userID,
                     },
                     {
-                        // This is the config object where you set headers
                         headers: {
                             'Content-Type': 'text/plain;charset=utf-8'
                         }
