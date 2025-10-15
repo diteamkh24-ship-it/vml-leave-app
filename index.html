@@ -180,7 +180,7 @@
             </button>
         </div>
 
-        <div v-if="!isLoading && isAuthorized">
+        <div v-if="!isLoading && isAuthorized && !submitFail">
             <h1>ពាក្យសុំច្បាប់</h1>
             <p class="welcome-message">សួស្ដី, {{ user.fullName }}! សូមបំពេញពាក្យខាងក្រោម</p>
             <form @submit.prevent="submitLeaveRequest">
@@ -194,7 +194,7 @@
             text-align: center;
             font-size: 10px;
             margin: 8px 0 ;
-        ">Version 1.0.8</div>
+        ">Version 1.0.9</div>
     </div>
 </body>
 
@@ -338,7 +338,7 @@
                     );
 
                     if (response.data.success) {
-                        this.isLoading = false;
+                       
                         window.location.reload();
                         // Save user details from the successful response
                     } else{
@@ -350,6 +350,7 @@
                     console.error('ការបញ្ចាក់បានបរាជ័យ:', error);
                 } finally {
                     this.isLoading = false;
+                     this.submitFail = false
                 }
                 console.log('Submitting leave request for:', this.user.fullName);
             }
