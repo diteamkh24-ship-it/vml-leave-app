@@ -155,7 +155,7 @@
     <div id="app">
 
         <div v-if="isLoading">
-            <h1>កំពុងបញ្ចាក់...</h1>
+            <h1>សូមរងចាំ...</h1>
             <p class="welcome-message">{{ authMessage }}</p>
         </div>
 
@@ -167,6 +167,16 @@
                   <path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
                 </svg>
                 សូមផ្ញើរលេខទូរស័ព្ទដើម្បីបញ្ចាក់
+            </button>
+        </div>
+
+         <div v-if="!isLoading && submitFail">
+            <h1>សំណើរសុំច្បាប់ត្រូវបានបរាជ័យ</h1>
+            <p class="welcome-message">{{ authMessage }}</p>
+             <button @click="()=>{
+                window.location.reload()
+             }" class="submit-btn">
+                ត្រលប់ទៅកាន់ទំព័រដើម
             </button>
         </div>
 
@@ -184,7 +194,7 @@
             text-align: center;
             font-size: 10px;
             margin: 8px 0 ;
-        ">Version 1.0.7</div>
+        ">Version 1.0.8</div>
     </div>
 </body>
 
@@ -201,10 +211,12 @@
                 isLoading: false,
                 phoneShared: false,  // Tracks if user has clicked the share button
                 isAuthorized: false,
+                submitFail: false,
                 authMessage: '',
                 user: {
                     fullName: '',
-                    chatId:''
+                    chatId:'',
+                    role:''
                 },
                 leave: {
                     startDate: '',
@@ -255,9 +267,9 @@
 
                     if (response.data.authorized) {
                         this.isAuthorized = true;
-                        console.log(response)
                         // Save user details from the successful response
                         this.user.fullName = response.data.user.fullName;
+                        this.user.role = response.data.user.role;
                     } else {
                         this.isAuthorized = false;
                         this.authMessage = response.data.message || 'ការបញ្ចាក់បានបរាជ័យ។';
@@ -293,6 +305,7 @@
                        
                         // Save user details from the successful response
                         this.user.fullName = response.data.user.fullName;
+                        this.user.role = response.data.user.role;
                     } else {
                         this.isAuthorized = false;
                         this.authMessage = response.data.message || 'ការបញ្ចាក់បានបរាជ័យ។';
@@ -305,8 +318,39 @@
                     this.isLoading = false;
                 }
             },
-            submitLeaveRequest() {
+            async submitLeaveRequest() {
                 // Logic for submitting the form will go here
+                this.isLoading = true;
+                this.authMessage = 'កំពុងបញ្ចូនសំណើរសុំច្បាប់';
+                try {
+                    const response = await axios.post(webAppUrl, {
+                        action: 'submitLeaveRequest',
+                        user_id: this.user.chatId,
+                        role:this.user.role,
+                        leave: this.leave
+                    },
+                    {
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        }
+                    }
+                    
+                    );
+
+                    if (response.data.success) {
+                        this.isLoading = false;
+                        window.loaction.reload();
+                        // Save user details from the successful response
+                    } else{
+                        this.submitFail = true;
+                    }
+                } catch (error) {
+                    this.isAuthorized = false;
+                    this.authMessage = 'មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់សឺវឺ, សូមសាកល្បងទៀត';
+                    console.error('ការបញ្ចាក់បានបរាជ័យ:', error);
+                } finally {
+                    this.isLoading = false;
+                }
                 console.log('Submitting leave request for:', this.user.fullName);
             }
         }
